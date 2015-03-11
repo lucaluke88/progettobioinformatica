@@ -1,0 +1,16 @@
+div#container
+{
+	text-align: center;
+}
+input#searchbox
+{
+	width:30%;
+}
+
+div#footer
+{
+	position:absolute;
+	left: 40%;
+	bottom: 5%;
+	font-style: italic;
+}
