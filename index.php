@@ -27,15 +27,11 @@
 			
 			if(!($client->dbExists($db_name,PhpOrient::DATABASE_TYPE_GRAPH)))
 			{
-				echo "il db non esiste, lo creo io";
-				$new_cluster_id = $client->dbCreate($db_name,
-			    PhpOrient::STORAGE_TYPE_MEMORY,   # optional, default: STORAGE_TYPE_PLOCAL
-			    PhpOrient::DATABASE_TYPE_GRAPH    # optional, default: DATABASE_TYPE_GRAPH
-				);
+				include('functions/create_database.php');
 			}
-			else {
-				echo "il db esiste";
-			}
+			
+			// connettiamoci al db che ora è sicuramente esistente
+			$ClusterMap = $client->dbOpen($db_name, 'root', '061288' );
 		}
 		catch (Exception $e) 
 		{
@@ -54,7 +50,10 @@
 					</form>
 				</div>
 				<div id="output">
-					
+					<?php
+						echo 'Dimensione del db corrente: </br>';
+						echo ($client->dbCountRecords());
+					?>
 				</div>
 				<div id="footer">
 					Developed by: Illuminato Luca Costantino & Daniela Ramo
