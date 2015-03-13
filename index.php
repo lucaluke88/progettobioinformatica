@@ -18,10 +18,19 @@
 				</div>
 				<div id="output">
 					<?php
+						ob_start(); // per il firebug
 						include('PhpOrient.php');
+						$client = new PhpOrient('127.0.0.1', 2424);
+						$db_username = 'root';
+						$db_password = '061288';
+						$db_data = $client->dbOpen('UnifiedPathwayDB', $db_username, $db_password);
 						if(isset($_POST['query'])) {
 							$query = $_POST['query'];
 							echo "La tua query è : ".$query;
+						}
+						
+						if(isset($db_data)) {
+							echo $db_data;
 						}
 					?>
 				</div>
