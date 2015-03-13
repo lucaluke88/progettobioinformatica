@@ -11,9 +11,18 @@
 	$ClusterMap = $client -> dbOpen($db_name, 'root', '061288');
 	
 	// PATHWAY
+	
+	//<name="path:hsa00010" 
+	// org="hsa" 
+	// number="00010" 
+	// title="Glycolysis / Gluconeogenesis" 
+	// image="http://www.kegg.jp/kegg/pathway/hsa/hsa00010.png" 
+	// link="http://www.kegg.jp/kegg-bin/show_pathway?hsa00010">
+	
 	$client -> command('create class Pathway extends V');
-	$client -> command('create property Pathway.title string'); // titolo pathway
-	$client -> command('create property Pathway.urlimage string'); // url immagine
-	$client -> command('create property Pathway.number string'); // numero
-	$client -> command('create property Pathway.link string'); // url pathway
+	$client -> command('create property Pathway.org string');
+	$client -> command('create property Pathway.number string');
+	$client -> command('create property Pathway.title string');
+	$client -> command('create property Pathway.image string');
+	$client -> command('create property Pathway.link string');
 ?>
