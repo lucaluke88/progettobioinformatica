@@ -10,8 +10,10 @@
 	);
 	$ClusterMap = $client -> dbOpen($db_name, 'root', '061288');
 	
-	$client -> command('create class Gene extends V');
-	$client -> command('create class Protein extends V');
-	$client -> command('create class Interation extends E');
-	
+	// PATHWAY
+	$client -> command('create class Pathway extends V');
+	$client -> command('create property Pathway.title string'); // titolo pathway
+	$client -> command('create property Pathway.urlimage string'); // url immagine
+	$client -> command('create property Pathway.number string'); // numero
+	$client -> command('create property Pathway.link string'); // url pathway
 ?>

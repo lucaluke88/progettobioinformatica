@@ -42,7 +42,8 @@
 		<body>
 			<div id="container">
 				<h1> Unified Database for Pathway Analysis </h1>
-				<div id="searchform"> 
+				<div id="searchform">
+					<label>Scrivi codice pathway qui</label> 
 					<form action="#" method="POST">
 						<input id="searchbox" type="text" name="query"/>
 						</br></br>
@@ -51,8 +52,19 @@
 				</div>
 				<div id="output">
 					<?php
-						echo 'Dimensione del db corrente: </br>';
-						echo ($client->dbCountRecords());
+						$_code = $_POST['query'];
+						include('functions/kegg.php');
+						include('functions/database.php');
+						$jsoncontent = getPathwayInfoFromItsCode($_code);
+						$attributes = writeIntoDB($jsoncontent);
+						
+						echo "Number: ".$attributes['number'];
+						echo "</br>";
+						echo "Title: ".$attributes['title'];
+						echo "</br>";
+						echo "Link: ".$attributes['link'];
+						echo "</br>";
+						echo "Image: ".$attributes['image'];
 					?>
 				</div>
 				<div id="footer">
