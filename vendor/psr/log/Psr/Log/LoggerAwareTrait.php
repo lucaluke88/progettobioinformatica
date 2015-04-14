@@ -20,3 +20,5 @@ trait LoggerAwareTrait
         $this->logger = $logger;
     }
 }
+
+?>

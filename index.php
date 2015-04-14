@@ -17,7 +17,7 @@
 			$client = new PhpOrient();
 			$client->configure( array(
 			    'username' => 'root',
-			    'password' => '061288',
+			    'password' => 'root',
 			    'hostname' => 'localhost',
 			    'port'     => 2424,
 			) );
@@ -28,7 +28,7 @@
 				$_POST['action'] = "none";
 			}
 			
-			else if(isset($_POST['action']) && $_POST['action']=="delete")
+			else if(isset($_POST['action']) && $_POST['action']=="delete") // questo pezzo funziona
 			{
 				$client->connect();
 				$client->dbDrop( $db_name, 
@@ -40,14 +40,14 @@
 			else if(isset($_POST['action']) && $_POST['action']=="mquery")
 			{
 				$client->connect();
-				$client->dbOpen($db_name, 'root', '061288' );
+				$client->dbOpen($db_name, 'root', 'root' );
 				echo $client->query($_POST['manual_query']);
 			}
 			
 			else if(isset($_POST['action']) && $_POST['action']=="mcommand")
 			{
 				$client->connect();
-				$client->dbOpen($db_name, 'root', '061288' );
+				$client->dbOpen($db_name, 'root', 'root' );
 				echo $client->command($_POST['manual_command']);
 			}
 			
@@ -61,7 +61,7 @@
 				}
 				
 				// connettiamoci al db che ora è sicuramente esistente
-				$ClusterMap = $client->dbOpen($db_name, 'root', '061288' );
+				$ClusterMap = $client->dbOpen($db_name, 'root', 'root' );
 			}
 			
 			
