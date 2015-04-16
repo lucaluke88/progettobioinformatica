@@ -3,34 +3,34 @@
 	use PhpOrient\PhpOrient;
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	$db_name = 'UnifiedPathwayDB';
-	$new_cluster_id = $client -> dbCreate($db_name, PhpOrient::STORAGE_TYPE_MEMORY, # optional, default: STORAGE_TYPE_PLOCAL
-	PhpOrient::DATABASE_TYPE_GRAPH # optional, default: DATABASE_TYPE_GRAPH
-	);
-	$ClusterMap = $client -> dbOpen($db_name, 'root', 'root');
+	// creo il db
+	$client -> dbCreate($db_name, PhpOrient::STORAGE_TYPE_MEMORY,PhpOrient::DATABASE_TYPE_GRAPH);
+	$client -> dbOpen($db_name, 'root', 'root');
 	
-	// PATHWAY
+	// imposto gli archi come non leggeri (commento perchè fa impallare tutto)
+	//$client -> command('ALTER DATABASE custom useLightweightEdges=false');
 	
-	//<name="path:hsa00010" 
-	// org="hsa" 
-	// number="00010" 
-	// title="Glycolysis / Gluconeogenesis" 
-	// image="http://www.kegg.jp/kegg/pathway/hsa/hsa00010.png" 
-	// link="http://www.kegg.jp/kegg-bin/show_pathway?hsa00010">
+	// Classe Pathway -------------------------------------------------------------------
 	
-	// Classe Pathway
-	$client -> command('create class Pathway extends V');
-	$client -> command('create property Pathway.number string'); // codice pathway
-	$client -> command('create property Pathway.title string'); // Titolo della Pathway
-	$client -> command('create property Pathway.image string'); // immagine pathway
-	$client -> command('create property Pathway.link string'); // url file kegg originale
+	// link pathway: http://www.kegg.jp/dbget-bin/www_bget?pathway+hsa00010
+	$output = $client -> command('CREATE CLASS Pathway extends V');
+	$client -> command('CREATE PROPERTY Pathway.id STRING'); // codice pathway
+	$client -> command('CREATE PROPERTY Pathway.title STRING'); // Titolo della Pathway
+	$client -> command('CREATE PROPERTY Pathway.image STRING'); // immagine pathway
+	$client -> command('CREATE PROPERTY Pathway.link STRING'); // url file kegg originale
 	
-	// Classe Gene
+	// Classe Gene -----------------------------------------------------------------------
 	
-		// le propriet� vanno prese da NCBI
-		// in pratica, noi importiamo da NCBI solo i geni richiesti da qualche pathway di KEGG
-		
+	// link gene: http://www.kegg.jp/dbget-bin/www_bget?hsa:130589
 	
-	// Classe Enzyme
-	
-	
+	$client -> command('CREATE CLASS Gene extends V');
+	// questi campi li recuperiamo dalla pathway entry
+	$client -> command('CREATE PROPERTY Gene.pathway_id NUMBER'); // pathway id
+	$client -> command('CREATE PROPERTY Gene.kegg_id STRING'); // kegg id di quel gene
+	$client -> command('CREATE PROPERTY Gene.link STRING'); // link kegg
+	// (non stiamo riportando qui le informazioni su come disegnare gli elementi)
+	$client -> command('CREATE PROPERTY Gene.name STRING'); // link kegg
+	// questi campi li prendiamo dal gene entry
+	$client -> command('CREATE PROPERTY Gene.orthology_id NUMBER'); // orthology id
+	// dobbiamo chiedere cosa importare (se tutte le proprietà, se anche le proprietà da altri db in questa fase, o possiamo escludere qualcosa)
 ?>
