@@ -2,68 +2,35 @@
 	//ob_start(); // per il firebug
 	require "vendor/autoload.php"; // sto usando Composer p
 	use PhpOrient\PhpOrient; // i namespace vanno usati nello scope più esterno altrimenti danno errore!
+	session_start();
+	// VARIABILI GLOBALI
+	$_SESSION['user'] = 'root';
+	$_SESSION['passwd'] = 'root';
+	$_SESSION['hostname'] = 'localhost';
+	$_SESSION['$port'] = 2424; // porta usata da OrientDB (motore e console)
+	$_SESSION['$db_name'] = 'Human_Pathway_Analysis_DB';
 ?>
 <html>
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>DB Unificato per Pathways - UNICT (Costantino-Ramo)</title>
+		<title>Human Pathway Analysis</title>
 		<link rel="stylesheet" href="stile.css"/>
 		<?php
 		try 
 		{
 			// inizializzazione
-			$client = new PhpOrient();
-			$client->configure( array(
-			    'username' => 'root',
-			    'password' => 'root',
-			    'hostname' => 'localhost',
-			    'port'     => 2424,
+			$_SESSION['client'] = new PhpOrient();
+			$_SESSION['client']->configure( array(
+			    'username' => $_SESSION['user'],
+			    'password' => $_SESSION['passwd'],
+			    'hostname' => $_SESSION['hostname'],
+			    'port'     => $_SESSION['port'],
 			) );
-			$db_name = 'UnifiedPathwayDB';
 			
-			if(isset($_POST['action']) && $_POST['action']=="reset")
-			{
-				$_POST['action'] = "none";
-			}
-			
-			else if(isset($_POST['action']) && $_POST['action']=="delete") // questo pezzo funziona
-			{
-				$client->connect();
-				$client->dbDrop( $db_name, 
-					 PhpOrient::STORAGE_TYPE_MEMORY  # optional, default: STORAGE_TYPE_PLOCAL
-				);
-				$_POST['action'] = "none";
-			}
-			
-			else if(isset($_POST['action']) && $_POST['action']=="mquery")
-			{
-				$client->connect();
-				$client->dbOpen($db_name, 'root', 'root' );
-				echo $client->query($_POST['manual_query']);
-			}
-			
-			else if(isset($_POST['action']) && $_POST['action']=="mcommand")
-			{
-				$client->connect();
-				$client->dbOpen($db_name, 'root', 'root' );
-				echo $client->command($_POST['manual_command']);
-			}
-			
-			else 
-			{
-				$client->connect();
-			
-				if(!($client->dbExists($db_name,PhpOrient::DATABASE_TYPE_GRAPH)))
-				{
-					include('functions/create_database.php');
-				}
-				
-				// connettiamoci al db che ora è sicuramente esistente
-				$ClusterMap = $client->dbOpen($db_name, 'root', 'root' );
-			}
-			
-			
+			if($_POST['action']=='createdb')
+				include('functions/create_database.php');
+		
 		}
 		catch (Exception $e) 
 		{
@@ -73,49 +40,22 @@
 	</head>
 		<body>
 			<div id="container">
-				<h1> Unified Database for Pathway Analysis </h1>
-				<div id="searchform">
-					<label>Scrivi codice pathway qui</label> 
-					<form action="#" method="POST">
-						<input id="searchbox" type="text" name="query"/>
-						</br></br>
+				<h1> Human Pathway Analysis </h1>
+				
+					<form action="functions/manual_command.php" method="POST">
+						<label>Scrivi comando manuale qui</label> 
+						<input type="text" size='100' name="manual_command"/>
 						<input type="submit"/> <input type="reset"/>
 					</form>
-				</div>
-				<div id="output">
-					<?php
-						if(isset($_POST['query']))
-						{
-							$_code = $_POST['query'];
-							include('functions/kegg.php');
-							include('functions/database.php');
-							$jsoncontent = getPathwayInfoFromItsCode($_code);
-							$attributes = writeIntoDB($jsoncontent);
-						}
-					?>
-				</div>
-				<div id="actions">
-					<form action="#" method="POST">
-						<input type="hidden" name="action" value="delete"/>
-						<input type="submit" value="Drop Database"/>
+					<form action="functions/manual_query.php" method="POST">
+						<label>Scrivi query manuale qui</label> 
+						<input type="text" size='100' name="manual_query"/>
+						<input type="submit"/> <input type="reset"/>
 					</form>
-					<form action="#" method="POST">
-						<input type="hidden" name="action" value="reset"/>
-						<input type="submit" value="Reset action manually "/>
+					<form action='#' method='POST'>
+						<input type='hidden' name='action' value='createdb'/>
+						<input type='submit' value='Create DB'/>
 					</form>
-					<form action="#" method="POST">
-						<label>Manual query</label>
-						<input type="hidden" name="action" value="mquery"/>
-						<input type="text" name="manual_query"/>
-						<input type="submit" value="Go"/>
-					</form>
-					<form action="#" method="POST">
-						<label>Manual command</label>
-						<input type="hidden" name="action" value="mcommand"/>
-						<input type="text" name="manual_command"/>
-						<input type="submit" value="Go"/>
-					</form>
-				</div>
 				<div id="footer">
 					Developed by: Illuminato Luca Costantino and Daniela Ramo - <a href="admin.php">Admin</a>
 				</div>
