@@ -1,7 +1,6 @@
 <?php
-	ob_start();
-	// per il firebug
-	require "vendor/autoload.php";
+	//ob_start(); // per il firebug
+	require "vendor/autoload.php"; // sto usando Composer p
 	use PhpOrient\PhpOrient; // i namespace vanno usati nello scope più esterno altrimenti danno errore!
 ?>
 <html>

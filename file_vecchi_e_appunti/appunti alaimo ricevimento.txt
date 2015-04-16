@@ -1,0 +1,33 @@
+1a fase - importare pathway KEGG nel db
+id di riferimento: entrez
+2a fase - importare pathway da pathway commons nel db
+3a fase - arricchire con info microrna
+informazione microrna -> gene target 
+gene 1 -> microrna -> gene 2
+
+importazione KGML
+
+entry sono nodi
+relation sono archi
+
+formato pathway=		hsa:identificativo_di_kegg (che va mantenuto)
+link = url di kegg
+nome = id di kegg, gruppo di geni pathway
+
+gene= specie:id_kegg
+
+id di kegg
+hsa|entrez id
+
+in kegg ci sono i vari nomi che può assumere un gene
+
+dopo il ; c'è il nome esteso (da associare ad ogni nodo)
+arco: da entry 1 a entry 2
+se ho più sottotipi faccio più archi
+archi con più proprietà
+
+reaction non ci interessa
+ci interessano entry, relation e pathway
+maplink lo ignoro
+ 
+
