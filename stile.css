@@ -1,10 +1,13 @@
+div#command_output
+{
+	color:red;
+	font-weight:bold;
+	border: 2px solid black;
+}
+
 div#container
 {
-	text-align: center;
-}
-input#searchbox
-{
-	width:30%;
+	text-align:center;
 }
 
 div#footer
