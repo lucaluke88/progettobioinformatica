@@ -15,10 +15,10 @@
 		$client -> connect();
 		// creo il db
 		$client -> dbCreate($db_name, PhpOrient::STORAGE_TYPE_MEMORY, PhpOrient::DATABASE_TYPE_GRAPH);
-		echo $client -> dbOpen($db_name, $_SESSION['user'], $_SESSION['passwd']);
 		
-		// imposto gli archi come non leggeri (commento perchè fa impallare tutto)
-		//$client -> command('ALTER DATABASE custom useLightweightEdges=false');
+		$client -> dbOpen($db_name, $_SESSION['user'], $_SESSION['passwd']);
+		
+		
 		
 		// Classe Pathway -------------------------------------------------------------------
 		
@@ -53,6 +53,16 @@
 		// orthology id
 		// dobbiamo chiedere cosa importare (se tutte le proprietà, se anche le proprietà da altri db in questa fase, o possiamo escludere qualcosa)
 		session_destroy();	
+		
+		// imposto gli archi come non leggeri (commento perchè fa impallare tutto)
+		//$client -> command('ALTER DATABASE CUSTOM useLightweightEdges=true');
+		//Classe Relation
+		$client -> command('CREATE CLASS Relation extends E');
+		$client -> command('CREATE PROPERTY Relation.nodo1 STRING');
+		$client -> command('CREATE PROPERTY Relation.nodo2 STRING');
+		$client -> command('CREATE PROPERTY Relation.type STRING');
+		
+		
 	}
 	catch (Exception $e) 
 	{

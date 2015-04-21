@@ -1,5 +1,5 @@
 <?php
-	require "./vendor/autoload.php"; // Composer
+	require_once "../vendor/autoload.php"; // Composer
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	use PhpOrient\PhpOrient;
 	session_start();

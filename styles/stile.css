@@ -1,0 +1,40 @@
+div#command_output
+{
+	text-align: left;]
+	color: white;
+	font-size: larger;
+	font-family:"Courier New", Courier, monospace;
+	font-weight:bold;
+	border: 1px solid black;
+	width: 80%;
+	margin-left: 10%;
+	height: 40%;
+	overflow: auto;
+}
+
+div#container
+{
+	text-align:center;
+}
+
+div#footer
+{
+	position:absolute;
+	left: 40%;
+	bottom: 2%;
+	font-style: italic;
+}
+
+.managedbform 
+{
+	float: left;
+}
+
+body {
+	background-color: #819FF7;
+}
+
+.input_box
+{
+	font-size:larger;
+}

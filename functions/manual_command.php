@@ -1,19 +1,24 @@
 <?php
-    require "./vendor/autoload.php"; // Composer
+    require_once "../vendor/autoload.php"; // Composer
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	use PhpOrient\PhpOrient;
 	session_start();
 	try 
 	{
+		echo $_POST['content'];
 		// inizializzazione connessione
 		$client = new PhpOrient();
-		echo $client->hostname = $_SESSION['hostname'];
-		echo $client->port     = $_SESSION['port'];
-		echo $client->username = $_SESSION['user'];
-		echo $client->password = $_SESSION['passwd'];
-		echo $db_name = $_SESSION['dbname'];
+		
+		$client->hostname = $_SESSION['hostname'];
+		$client->port     = $_SESSION['port'];
+		$client->username = $_SESSION['user'];
+		$client->password = $_SESSION['passwd'];
+		$db_name = $_SESSION['dbname'];
+		$client -> dbOpen($db_name, $_username, $_password);
 		$client -> connect();
+		
 		$client->command($_POST['manual_command']);
+		//echo $_POST['manual_command'];
 	}
 	catch (Exception $e) 
 	{

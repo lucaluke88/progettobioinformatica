@@ -1,6 +1,6 @@
 <?php
 	// ob_start(); // per il firebug
-	require "./vendor/autoload.php";
+	require_once "../vendor/autoload.php"; // Composer
 	use PhpOrient\PhpOrient;
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	$db_name = 'UnifiedPathwayDB';
