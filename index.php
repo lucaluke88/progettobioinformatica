@@ -90,9 +90,16 @@ $_SESSION['dbname'] = 'Human_Pathway_Analysis_DB';
 				<label style="color: white; font-weight: bold" >Command output(s):</label>
 				</br></br>
 				<div id='command_output'>
-				<?php $xmlstring = file_get_contents("file/hsa00010.xml");
+				<?php 
+				
+					/*
+					$xmlstring = file_get_contents("file/hsa00010.xml");
 					$xmlobj = simplexml_load_string($xmlstring);
 					print_r($xmlobj);
+					 * 
+					 */
+					 
+					 include('functions/import_function.php');
 				?>
 		</div>
 		</br></br>

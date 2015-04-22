@@ -1,4 +1,10 @@
 <?php
+
+	/*
+	 * 	inserire nel db i subtypes
+	 * /
+
+
 	/**
 	 * MITHrIL: miRNA enriched pathway impact analysis
 	 * REST Web Service
