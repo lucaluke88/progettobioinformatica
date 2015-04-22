@@ -2,7 +2,19 @@ div#command_output
 {
 	text-align: left;]
 	color: white;
-	font-size: larger;
+	font-family:"Courier New", Courier, monospace;
+	font-weight:bold;
+	border: 1px solid black;
+	width: 80%;
+	margin-left: 10%;
+	height: 40%;
+	overflow: auto;
+}
+
+div#apache_error_log
+{
+	text-align: left;]
+	color: white;
 	font-family:"Courier New", Courier, monospace;
 	font-weight:bold;
 	border: 1px solid black;
@@ -21,7 +33,7 @@ div#footer
 {
 	position:absolute;
 	left: 40%;
-	bottom: 2%;
+	top: 170%;
 	font-style: italic;
 }
 

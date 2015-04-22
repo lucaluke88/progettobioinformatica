@@ -1,8 +1,13 @@
 <?php
-	require_once "../vendor/autoload.php"; // Composer
+/**
+ * MITHrIL: miRNA enriched pathway impact analysis
+ * REST Web Service
+ *
+ * @author Illuminato Luca Costantino - Daniela Ramo
+ */
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	use PhpOrient\PhpOrient;
-	session_start();
+	//session_start();
 	// Mi recupero le variabili di sessione
 	
 	try 
@@ -20,8 +25,9 @@
 		{
 			$client->dbDrop($db_name,PhpOrient::STORAGE_TYPE_MEMORY);
 		}
-		
-		session_destroy();
+		else {
+			echo "Non ho cancellato nulla perchè il database non esiste";
+		}
 	}
 	catch (Exception $e) 
 	{

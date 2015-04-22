@@ -1,5 +1,11 @@
 <?php
-    require_once "../vendor/autoload.php"; // Composer
+/**
+ * MITHrIL: miRNA enriched pathway impact analysis
+ * REST Web Service
+ *
+ * @author Illuminato Luca Costantino - Daniela Ramo
+ */
+    require_once "vendor/autoload.php"; // Composer
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	use PhpOrient\PhpOrient;
 	session_start();
