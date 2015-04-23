@@ -5,6 +5,11 @@
 	 *
 	 * @author Illuminato Luca Costantino - Daniela Ramo
 	 */
+	 
+	 /*
+	  *	Cerco di ragionare in una maniera più semplice: devo partire da questo esempio per creare il metodo
+	  * 
+	  */
 
 	require_once "vendor/autoload.php";
 	// composer

@@ -1,6 +1,7 @@
 <?php 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
+
 /**
  * MITHrIL: miRNA enriched pathway impact analysis
  * REST Web Service
@@ -92,14 +93,8 @@ $_SESSION['dbname'] = 'Human_Pathway_Analysis_DB';
 				<div id='command_output'>
 				<?php 
 				
-					/*
-					$xmlstring = file_get_contents("file/hsa00010.xml");
-					$xmlobj = simplexml_load_string($xmlstring);
-					print_r($xmlobj);
-					 * 
-					 */
-					 
-					 include('functions/import_function.php');
+					
+					include('functions/metodo_popolazione_db.php');
 				?>
 		</div>
 		</br></br>
