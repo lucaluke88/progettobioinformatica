@@ -33,12 +33,10 @@
 	// una volta creato, viene anche creato l'oggetto grafico associato e inserito nelle repository
 	function createEntry($pathway, $id, $name, $type, $link, $graph_entry)
 	{
-		if ($type=="gene") // se è gene
-		{
-		    return new \Mithril\Pathway\Entry\Entry([ // crea una nuova entry nell'apposito repo
+		return new \Mithril\Pathway\Entry\Entry([ // crea una nuova entry nell'apposito repo
 		        'id'        => $id,
 		        'aliases'   => [],
-		        'name'      => 'Gene ' . $id,
+		        'name'      => $type . $id,
 		        'type'      => $type,
 		        'links'     => $link,
 		        'contained' => [
@@ -58,32 +56,5 @@
 		            ])
 		        ]
 		    ]);
-		}
-		else if ($type=="ortholog")
-		{
-			return new \Mithril\Pathway\Entry\Entry([
-		        'id'        => $id,
-		        'aliases'   => [],
-		        'name'      => 'Orthology ' . $id,
-		        'type'      => $type,
-		        'links'     => $link,
-		        'contained' => [
-		            new \Mithril\Pathway\Contained\Pathway([
-		                'pathway' => $pathway,
-		                'graphic' => new \Mithril\Pathway\Graphic([
-		                    'name'    => 'Gene ' . $id,
-		                    'x'       => $graph_entry -> x,
-		                    'y'       => $graph_entry -> y,
-		                    'coords'  => $graph_entry -> x.','.$graph_entry -> y,, // da rivedere x,y
-		                    'type'    => $graph_entry -> type,
-		                    'width'   => $graph_entry -> width,
-		                    'height'  => $graph_entry -> height,
-		                    'fgcolor' => $graph_entry -> fgcolor,
-		                    'bgcolor' => $graph_entry -> bgcolor
-		                ])
-		            ])
-		        ]
-		    ]);
-		}
 	}
 ?>

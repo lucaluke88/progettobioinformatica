@@ -22,7 +22,7 @@ $_SESSION['passwd'] = 'root';
 $_SESSION['hostname'] = 'localhost';
 $_SESSION['port'] = 2424;
 // porta usata da OrientDB (motore e console)
-$_SESSION['dbname'] = 'Human_Pathway_Analysis_DB';
+$_SESSION['dbname'] = 'MITHrIL';
 ?>
 <html>
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
