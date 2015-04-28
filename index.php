@@ -9,9 +9,12 @@ ini_set('display_errors', '1');
  * @author Illuminato Luca Costantino - Daniela Ramo
  */
 
-require_once "vendor/autoload.php";
+require_once "vendor/autoload.php"; // composer
+require_once "autoload.php"; // caricamento classi Alaimo
+
 // sto usando Composer
 use PhpOrient\PhpOrient;
+
 // i namespace vanno usati nello scope più esterno altrimenti danno errore!
 session_start();
 //if (!(isset($_SESSION['login_ok'])) || ($_SESSION['login_ok'] = FALSE))
@@ -92,9 +95,7 @@ $_SESSION['dbname'] = 'MITHrIL';
 				</br></br>
 				<div id='command_output'>
 				<?php 
-				
-					
-					include('functions/metodo_popolazione_db.php');
+					include('metodo_popolazione_db.php');
 				?>
 		</div>
 		</br></br>
