@@ -11,31 +11,32 @@ error_reporting(E_ERROR);
 ini_set('display_errors', '1');
 require_once('autoload.php');
 
+/*
+ *	ANNOTAZIONI 
+ *  i compound vanno ignorati
+ * 
+ */
+
  /*
  * 	INIZIALIZZAZIONE REPOSITORY ======================================================================
  */ 
 
-
-//Repository delle entry         
 $entryRepo = new \Mithril\Pathway\Repository\Entry\Entry();
-
-//Repository dei TIPI di entry
 $entryTypeRepo = new Mithril\Pathway\Repository\Entry\Type();  
-
-//Repository dei tipi di relazione             
 $relationTypeRepo = new \Mithril\Pathway\Repository\Relation\Type();
-//Repository dei sottotipi di relazione   
 $relationSubTypeRepo = new \Mithril\Pathway\Repository\Relation\SubType();
-//Repository delle relazioni  
 $relationRepo = new \Mithril\Pathway\Repository\Relation\Relation();
-//Repository delle pathway        
 $pathwayRepo = new \Mithril\Pathway\Repository\Pathway();                   
-//Imposto le repository delle entry e delle pathway collegandole alle altre
 $entryRepo->setRelationsRepository($relationRepo);
 $pathwayRepo->setRelationsRepository($relationRepo)->setEntriesRepository($entryRepo);
-//costruisco il tipo di entry GENE e il tipo ORTHOLOG
 $geneEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'gene']);
 $orthologEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'ortholog']);
+$enzymeEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'enzyme']);
+$groupEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'group']);
+$mapEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'map']);
+
+
+
 //e li aggiungi alla repository dei tipi di entry
 $entryTypeRepo->add($geneEntryType);
 $entryTypeRepo->add($orthologEntryType);
@@ -46,16 +47,6 @@ $ecrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'ECrel'])
 //e li aggiungo alla relativa repository
 $relationTypeRepo->add($maplinkRelationType);
 $relationTypeRepo->add($ecrellinkRelationType);
-
-// ignoriamo i compound
-
-/*
- * OPERAZIONI DI LETTURA =============================================================================
- */
-
-// elenco di tutte le pathway umane
-// http://rest.kegg.jp/list/pathway/hsa
-
 
 
 $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway/hsa'));
