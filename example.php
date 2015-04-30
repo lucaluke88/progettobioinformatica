@@ -103,3 +103,5 @@ foreach (['human', 'prova1', 'prova2'] as $org) {
         $t += 10;
     }
 }
+
+echo $pathwayRepo->count();

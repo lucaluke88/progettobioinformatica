@@ -39,11 +39,14 @@ $orthologEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'ortholog']);
 $entryTypeRepo->add($geneEntryType);
 $entryTypeRepo->add($orthologEntryType);
 //costruisco i tipi di relazione maplink, ecrel 
+// leggere dal markup guide e aggiungere
 $maplinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'maplink']);
 $ecrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'ECrel']);
 //e li aggiungo alla relativa repository
 $relationTypeRepo->add($maplinkRelationType);
 $relationTypeRepo->add($ecrellinkRelationType);
+
+// ignoriamo i compound
 
 /*
  * OPERAZIONI DI LETTURA =============================================================================
@@ -51,10 +54,14 @@ $relationTypeRepo->add($ecrellinkRelationType);
 
 // elenco di tutte le pathway umane
 // http://rest.kegg.jp/list/pathway/hsa
+
+
+
 $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway/hsa'));
 foreach ($pathwaylist as $p) {
 	echo "pathway n".$cont;
 	echo "</br>";
+	// al posto di questo url, devo usare l'api di kegg, /get/ qualcosa... (kgml api)
 	$url = ("http://www.kegg.jp/kegg-bin/download?entry=".substr($p, 5, 8)."&format=kgml");
 	// leggo dall'url il mio xml, lo analizzo e per ogni elemento, creo l'entry o la relation più opportuna
 	readElementsFromXML($url);
@@ -121,6 +128,11 @@ function readElementsFromXML($url)
 		            	$entryRepo->add($entry);
 					}
 					
+					// per ogni entry, facciamo un'array id_locale, id_nuovo_db ci serve dopo
+					
+					
+					
+					
 					//$entry_id = metodo_per_ricavare_id($entry);
 					//$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
 		            //$entryRepo->add($entry);
@@ -133,6 +145,7 @@ function readElementsFromXML($url)
 				foreach ($xml_item->children() as $subtype_entry)
 				{
 					// leggo i campi di relation dall'xml
+					
 					$entry1 = $allEntries[$xml_item['entry1']];
 		            $entry2 = $allEntries[$xml_item['entry2']];
 					//costruisco la relazione tra le due entry lette
@@ -166,17 +179,17 @@ function createEntry($pathway, $id, $name, $type, $link, $graph_child)
 		return new \Mithril\Pathway\Entry\Entry([
 		        'id'        => $id,
 		        'aliases'   => $name,
-		        'name'      => $type . $id,
+		        'name'      => $type . $id, // qui va inserito il secondo pezzo rest.kegg.jp/list/hsa
 		        'type'      => $type,
 		        'links'     => $link,
 		        'contained' => [
 		            new \Mithril\Pathway\Contained\Pathway([
 		                'pathway' => $pathway,
 		                'graphic' => new \Mithril\Pathway\Graphic([
-		                    'name'    => $type . $id,
+		                    'name'    => $graph_child -> name, // name contenuto in graph_child
 		                    'x'       => $graph_child -> x,
 		                    'y'       => $graph_child -> y,
-		                    'coords'  => $graph_child -> x.','.$graph_child -> y, // coords = x,y
+		                    'coords'  => $graph_child -> x.','.$graph_child -> y, // oggetto coords (se esiste, lo troviamo nel xml della pathway)
 		                    'type'    => $graph_child -> type,
 		                    'width'   => $graph_child -> width,
 		                    'height'  => $graph_child -> height,
@@ -189,3 +202,15 @@ function createEntry($pathway, $id, $name, $type, $link, $graph_child)
 	}
 
 
+// dopo di questo, dobbiamo aggiungere altri tipi e altre entità
+//aggiungere interazioni microRNA-geni (sempre umane)
+// microrna gene targets (ci interessano solo queste validate)
+// abbiamo a disposizione l'id di entrez, che abbiamo anche in kegg nel formato hsa:id_entrez
+// MIMAT collegati al gene (interazioni di tipo gene)
+// relation type: mgrel
+// relation subtype: ~inibition
+// sito mirwalk tabella
+// sito mirtarbase excel
+// mappare il nome del maturo con l'entry del db mirbase
+
+// aggiungere entry "microrna"

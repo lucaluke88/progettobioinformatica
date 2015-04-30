@@ -1,22 +1,11 @@
 <?php
-	function autoload()
+	spl_autoload_register(function ($class)
 	{
-
-		dirToArray("Mithril");
-
-		/*
-		 $fileName = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-		 if (file_exists($fileName))
-		 {
-		 echo $fileName;
-		 require_once ($fileName);
-		 }
-		 else
-		 {
-		 echo "non lo trovo!";
-		 } */
-
-	}
+		$fileName = str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
+		if (file_exists($fileName)) {
+			require_once($fileName);
+		}
+	}, false, true);
 
 	function dirToArray($dir)
 	{
