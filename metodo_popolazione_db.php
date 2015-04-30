@@ -7,8 +7,9 @@
  * @author Illuminato Luca Costantino - Daniela Ramo
  */
 
-error_reporting(E_ALL);
+error_reporting(E_ERROR);
 ini_set('display_errors', '1');
+require_once('autoload.php');
 
  /*
  * 	INIZIALIZZAZIONE REPOSITORY ======================================================================
@@ -58,15 +59,99 @@ $relationTypeRepo->add($ecrellinkRelationType);
 
 
 $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway/hsa'));
-foreach ($pathwaylist as $p) {
-	echo "pathway n".$cont;
-	echo "</br>";
-	// al posto di questo url, devo usare l'api di kegg, /get/ qualcosa... (kgml api)
-	$url = ("http://www.kegg.jp/kegg-bin/download?entry=".substr($p, 5, 8)."&format=kgml");
-	// leggo dall'url il mio xml, lo analizzo e per ogni elemento, creo l'entry o la relation più opportuna
-	readElementsFromXML($url);
+$cont = 1;
+foreach ($pathwaylist as $p) 
+{
+	if ($cont<=2)
+	{
+		
+		// al posto di questo url, devo usare l'api di kegg, /get/ qualcosa... (kgml api)
+		$url = ("http://www.kegg.jp/kegg-bin/download?entry=".substr($p, 5, 8)."&format=kgml");
+		echo $url;
+		echo "</br>";
+		// leggo dall'url il mio xml, lo analizzo e per ogni elemento, creo l'entry o la relation più opportuna
+		//readElementsFromXML($url);
+		// ----------------------
+		$xmlstring = file_get_contents($url); // il contenuto della pagina inserito in questa variabile
+		$xml_pathway_obj = simplexml_load_string($xmlstring); // oggetto xml di tutta la pathway
+		
+		
+		/* NOMI VARIABILI
+		 * $xml_pathway_obj = è il nodo root dell'xml, contiene le info sulla pathway
+		 * $xml_item = identifica tutti i nodi di primo livello (cioè entries
+		 * e relations)
+		 */
+		
+		
+		if ($xml_pathway_obj -> getName() == "pathway")
+		{
+			// root: informazioni e tag della pathway
+			$mypathway = createPathway($xml_pathway_obj['name'], $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
+			$pathwayRepo->add($mypathway); // con questo comando aggiungiamo la pathway al repo
+	        // guardiamo tutti i figli (che sono gene/orthology o relation) 
+	        echo "pathway ".$cont;
+			echo "</br>";
+	        foreach ($xml_pathway_obj->children() as $xml_item)
+			{
+				if ($xml_item -> getName() == "entry")
+				{
+					// uso il foreach perchè altrimenti non mi legge il figlio ma fa una sola iterazione
+					foreach ($xml_item->children() as $graph_child) 
+					{
+						/* 	Il tag name contiene gli alias, il nome da memorizzare va preso da
+					 		hsa:UN_NUMERO il numero contenuto va posto come id nell'oggetto entry.
+					 		Ogni alias è nel formato hsa:ID, dobbiamo creare 3 entry o fare una lista di 3 id?
+						*/
+					
+						// Qui mi ricavo gli N id (gli alias) e creo N entry nel db
+						$aliases_list = explode(" ", $xml_item['name']);
+						foreach ($aliases_list as $alias) 
+						{
+							$entry_id = substr($alias, 4);
+							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
+			            	$entryRepo->add($entry);
+						}
+						
+						// per ogni entry, facciamo un'array id_locale, id_nuovo_db ci serve dopo
+						
+						
+						
+						
+						//$entry_id = metodo_per_ricavare_id($entry);
+						//$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
+			            //$entryRepo->add($entry);
+					}
+					
+					
+				}
+				else if ($xml_item -> getName() == "relation")
+				{
+					/*
+					foreach ($xml_item->children() as $subtype_entry)
+					{
+						// leggo i campi di relation dall'xml
+						
+						$entry1 = $allEntries[$xml_item['entry1']];
+			            $entry2 = $allEntries[$xml_item['entry2']];
+						//costruisco la relazione tra le due entry lette
+			            $relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
+			                $relationSubTypeRepo->get($subtype_entry['name']), $path);
+			            $relationRepo->add($relation);
+						//costruisco un sottotipo di relazione di esempio
+						$compoundRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => $subtype_entry['name'], 'value' => $subtype_entry['value']]);
+						$relationSubTypeRepo->add($compoundRelationSubType);
+					}
+					 */
+				}
+				//$allEntries = $path->getEntries();
+			} 
+		} 
+	}
+	$cont = $cont + 1;
 }
-
+echo $pathwayRepo->count();
+$allEntries = $mypathway->getEntries();
+echo $allEntries;
  
 /*
  *	MIE FUNZIONI ================================================================================================
@@ -145,19 +230,19 @@ function readElementsFromXML($url)
 				foreach ($xml_item->children() as $subtype_entry)
 				{
 					// leggo i campi di relation dall'xml
-					
+					// public function getIdField()
 					$entry1 = $allEntries[$xml_item['entry1']];
 		            $entry2 = $allEntries[$xml_item['entry2']];
 					//costruisco la relazione tra le due entry lette
 		            $relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
-		                $relationSubTypeRepo->get($subtype_entry['name']), $path);
+		                $relationSubTypeRepo->get($subtype_entry['name']), $mypathway);
 		            $relationRepo->add($relation);
 					//costruisco un sottotipo di relazione di esempio
 					$compoundRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => $subtype_entry['name'], 'value' => $subtype_entry['value']]);
 					$relationSubTypeRepo->add($compoundRelationSubType);
 				}
 			}
-			//$allEntries = $path->getEntries();
+			
 		} 
 	} 
 }

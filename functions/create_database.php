@@ -11,6 +11,18 @@
 	 *
 	 * @author Illuminato Luca Costantino - Daniela Ramo
 	 */
+
+	/*
+	 * 	inserire nel db i subtypes
+	 * /
+
+
+	/**
+	 * MITHrIL: miRNA enriched pathway impact analysis
+	 * REST Web Service
+	 *
+	 * @author Illuminato Luca Costantino - Daniela Ramo
+	 */
 	// i namespace vanno usati nello scope più esterno altrimenti danno errore!
 	use PhpOrient\PhpOrient;
 	// inizializzazione connessione
