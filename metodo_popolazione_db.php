@@ -13,9 +13,66 @@ require_once('autoload.php');
 
 /*
  *	ANNOTAZIONI 
- *  i compound vanno ignorati
+ *  
  * 
  */
+ 
+ /*
+ *	MIE FUNZIONI ================================================================================================
+ */
+ 
+function createRelation($entry1, $entry2, $type, $subType, $pathway)
+{
+    return new \Mithril\Pathway\Relation\Relation([
+        'entry1'   => $entry1,
+        'entry2'   => $entry2,
+        'type'     => $type,
+        'subTypes' => $subType,
+        'pathways' => [$pathway]
+    ]);
+}
+
+
+function createPathway($id, $org, $title, $image, $link)
+	{
+	    return new \Mithril\Pathway\Pathway([
+	        'id'       => $id,
+	        'organism' => $org,
+	        'title'    => $title,
+	        'image'    => $link
+	    ]);
+		
+	}
+
+
+function createEntry($pathway, $id, $name, $type, $link, $graph_child)
+	{
+		
+		
+		return new \Mithril\Pathway\Entry\Entry([
+		        'id'        => $id,
+		        'aliases'   => $name,
+		        'name'      => $type . $id, // qui va inserito il secondo pezzo rest.kegg.jp/list/hsa
+		        'type'      => $type,
+		        'links'     => $link,
+		        'contained' => [
+		            new \Mithril\Pathway\Contained\Pathway([
+		                'pathway' => $pathway,
+		                'graphic' => new \Mithril\Pathway\Graphic([
+		                    'name'    => $graph_child -> name, // name contenuto in graph_child
+		                    'x'       => $graph_child -> x,
+		                    'y'       => $graph_child -> y,
+		                    'coords'  => $graph_child -> x.','.$graph_child -> y, // oggetto coords (se esiste, lo troviamo nel xml della pathway)
+		                    'type'    => $graph_child -> type,
+		                    'width'   => $graph_child -> width,
+		                    'height'  => $graph_child -> height,
+		                    'fgcolor' => $graph_child -> fgcolor,
+		                    'bgcolor' => $graph_child -> bgcolor
+		                ])
+		            ])
+		        ]
+		    ]);
+	}
 
  /*
  * 	INIZIALIZZAZIONE REPOSITORY ======================================================================
@@ -35,66 +92,52 @@ $enzymeEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'enzyme']);
 $groupEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'group']);
 $mapEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'map']);
 
-
-
-//e li aggiungi alla repository dei tipi di entry
 $entryTypeRepo->add($geneEntryType);
 $entryTypeRepo->add($orthologEntryType);
-//costruisco i tipi di relazione maplink, ecrel 
-// leggere dal markup guide e aggiungere
+$entryTypeRepo->add($enzymeEntryType);
+$entryTypeRepo->add($groupEntryType);
+$entryTypeRepo->add($mapEntryType);
+
 $maplinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'maplink']);
 $ecrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'ECrel']);
-//e li aggiungo alla relativa repository
+$pprellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'PPrel']);
+$gerellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'GErel']);
+$pcrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'PCrel']);
+
 $relationTypeRepo->add($maplinkRelationType);
 $relationTypeRepo->add($ecrellinkRelationType);
-
+$relationTypeRepo->add($pprellinkRelationType);
+$relationTypeRepo->add($gerellinkRelationType);
+$relationTypeRepo->add($pcrellinkRelationType);
 
 $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway/hsa'));
 $cont = 1;
 foreach ($pathwaylist as $p) 
 {
-	if ($cont<=2)
+	if ($cont<=2) // due sole iterazioni
 	{
-		
-		// al posto di questo url, devo usare l'api di kegg, /get/ qualcosa... (kgml api)
-		$url = ("http://www.kegg.jp/kegg-bin/download?entry=".substr($p, 5, 8)."&format=kgml");
-		echo $url;
-		echo "</br>";
-		// leggo dall'url il mio xml, lo analizzo e per ogni elemento, creo l'entry o la relation più opportuna
-		//readElementsFromXML($url);
-		// ----------------------
+		echo "</br>"."Iterazione ".$cont." </br>";	
+		$url = ("http://rest.kegg.jp/get/path:".substr($p, 5, 8)."/kgml");
 		$xmlstring = file_get_contents($url); // il contenuto della pagina inserito in questa variabile
 		$xml_pathway_obj = simplexml_load_string($xmlstring); // oggetto xml di tutta la pathway
-		
-		
-		/* NOMI VARIABILI
-		 * $xml_pathway_obj = è il nodo root dell'xml, contiene le info sulla pathway
-		 * $xml_item = identifica tutti i nodi di primo livello (cioè entries
-		 * e relations)
-		 */
-		
 		
 		if ($xml_pathway_obj -> getName() == "pathway")
 		{
 			// root: informazioni e tag della pathway
+			echo "Nome pathway: ".$xml_pathway_obj['name']."</br>";
+			
 			$mypathway = createPathway($xml_pathway_obj['name'], $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
-			$pathwayRepo->add($mypathway); // con questo comando aggiungiamo la pathway al repo
-	        // guardiamo tutti i figli (che sono gene/orthology o relation) 
-	        echo "pathway ".$cont;
+			print_r($mypathway);
 			echo "</br>";
+			
+			$pathwayRepo->add($mypathway);
+			
 	        foreach ($xml_pathway_obj->children() as $xml_item)
 			{
 				if ($xml_item -> getName() == "entry")
 				{
-					// uso il foreach perchè altrimenti non mi legge il figlio ma fa una sola iterazione
 					foreach ($xml_item->children() as $graph_child) 
 					{
-						/* 	Il tag name contiene gli alias, il nome da memorizzare va preso da
-					 		hsa:UN_NUMERO il numero contenuto va posto come id nell'oggetto entry.
-					 		Ogni alias è nel formato hsa:ID, dobbiamo creare 3 entry o fare una lista di 3 id?
-						*/
-					
-						// Qui mi ricavo gli N id (gli alias) e creo N entry nel db
 						$aliases_list = explode(" ", $xml_item['name']);
 						foreach ($aliases_list as $alias) 
 						{
@@ -102,18 +145,7 @@ foreach ($pathwaylist as $p)
 							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
 			            	$entryRepo->add($entry);
 						}
-						
-						// per ogni entry, facciamo un'array id_locale, id_nuovo_db ci serve dopo
-						
-						
-						
-						
-						//$entry_id = metodo_per_ricavare_id($entry);
-						//$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
-			            //$entryRepo->add($entry);
 					}
-					
-					
 				}
 				else if ($xml_item -> getName() == "relation")
 				{
@@ -140,142 +172,19 @@ foreach ($pathwaylist as $p)
 	}
 	$cont = $cont + 1;
 }
-echo $pathwayRepo->count();
-$allEntries = $mypathway->getEntries();
-echo $allEntries;
- 
-/*
- *	MIE FUNZIONI ================================================================================================
- */
- 
-function createRelation($entry1, $entry2, $type, $subType, $pathway)
+
+if(is_null($pathwayRepo->getEntries()))
 {
-    return new \Mithril\Pathway\Relation\Relation([
-        'entry1'   => $entry1,
-        'entry2'   => $entry2,
-        'type'     => $type,
-        'subTypes' => $subType,
-        'pathways' => [
-            $pathway
-        ]
-    ]);
+	echo "</br>";
+	echo "Non ci sono pathway";
 }
-
-function readElementsFromXML($url)
+else 
 {
-	$xmlstring = file_get_contents($url); // il contenuto della pagina inserito in questa variabile
-	echo $xmlstring;
-	$xml_pathway_obj = simplexml_load_string($xmlstring); // oggetto xml di tutta la pathway
 	
-	
-	/* NOMI VARIABILI
-	 * $xml_pathway_obj = è il nodo root dell'xml, contiene le info sulla pathway
-	 * $xml_item = identifica tutti i nodi di primo livello (cioè entries
-	 * e relations)
-	 */
-	
-	
-	if ($xml_pathway_obj -> getName() == "pathway")
-	{
-		// root: informazioni e tag della pathway
-		
-		$mypathway = createPathway($xml_pathway_obj['name'], $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
-		$pathwayRepo->add($mypathway); // con questo comando aggiungiamo la pathway al repo
-        
-        // guardiamo tutti i figli (che sono gene/orthology o relation) 
-        foreach ($xml_pathway_obj->children() as $xml_item)
-		{
-			if ($xml_item -> getName() == "entry")
-			{
-				// uso il foreach perchè altrimenti non mi legge il figlio ma fa una sola iterazione
-				foreach ($xml_item->children() as $graph_child) 
-				{
-					/* 	Il tag name contiene gli alias, il nome da memorizzare va preso da
-				 		hsa:UN_NUMERO il numero contenuto va posto come id nell'oggetto entry.
-				 		Ogni alias è nel formato hsa:ID, dobbiamo creare 3 entry o fare una lista di 3 id?
-					*/
-				
-					// Qui mi ricavo gli N id (gli alias) e creo N entry nel db
-					$aliases_list = explode(" ", $xml_item['name']);
-					foreach ($aliases_list as $alias) 
-					{
-						$entry_id = substr($alias, 4);
-						$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
-		            	$entryRepo->add($entry);
-					}
-					
-					// per ogni entry, facciamo un'array id_locale, id_nuovo_db ci serve dopo
-					
-					
-					
-					
-					//$entry_id = metodo_per_ricavare_id($entry);
-					//$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
-		            //$entryRepo->add($entry);
-				}
-				
-				
-			}
-			else if ($xml_item -> getName() == "relation")
-			{
-				foreach ($xml_item->children() as $subtype_entry)
-				{
-					// leggo i campi di relation dall'xml
-					// public function getIdField()
-					$entry1 = $allEntries[$xml_item['entry1']];
-		            $entry2 = $allEntries[$xml_item['entry2']];
-					//costruisco la relazione tra le due entry lette
-		            $relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
-		                $relationSubTypeRepo->get($subtype_entry['name']), $mypathway);
-		            $relationRepo->add($relation);
-					//costruisco un sottotipo di relazione di esempio
-					$compoundRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => $subtype_entry['name'], 'value' => $subtype_entry['value']]);
-					$relationSubTypeRepo->add($compoundRelationSubType);
-				}
-			}
-			
-		} 
-	} 
+	echo "Repository aggiunti";
 }
+ 
 
-function createPathway($id, $org, $title, $image, $link)
-	{
-	    return new \Mithril\Pathway\Pathway([
-	        'id'       => $id,
-	        'organism' => $org,
-	        'title'    => $title,
-	        'image'    => $link
-	    ]);
-	}
-
-
-// $id va ricavato incrociando la ricerca; $name è la lista degli alias del'attributo "name" del tag "entry"
-function createEntry($pathway, $id, $name, $type, $link, $graph_child)
-	{
-		return new \Mithril\Pathway\Entry\Entry([
-		        'id'        => $id,
-		        'aliases'   => $name,
-		        'name'      => $type . $id, // qui va inserito il secondo pezzo rest.kegg.jp/list/hsa
-		        'type'      => $type,
-		        'links'     => $link,
-		        'contained' => [
-		            new \Mithril\Pathway\Contained\Pathway([
-		                'pathway' => $pathway,
-		                'graphic' => new \Mithril\Pathway\Graphic([
-		                    'name'    => $graph_child -> name, // name contenuto in graph_child
-		                    'x'       => $graph_child -> x,
-		                    'y'       => $graph_child -> y,
-		                    'coords'  => $graph_child -> x.','.$graph_child -> y, // oggetto coords (se esiste, lo troviamo nel xml della pathway)
-		                    'type'    => $graph_child -> type,
-		                    'width'   => $graph_child -> width,
-		                    'height'  => $graph_child -> height,
-		                    'fgcolor' => $graph_child -> fgcolor,
-		                    'bgcolor' => $graph_child -> bgcolor
-		                ])
-		            ])
-		        ]
-		    ]);
-	}
 
 
 // dopo di questo, dobbiamo aggiungere altri tipi e altre entità
