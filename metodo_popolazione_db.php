@@ -118,7 +118,7 @@ $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway
 $cont = 1;
 foreach ($pathwaylist as $p) 
 {
-	if ($cont<=2) // due sole iterazioni
+	if ($cont<=2) // 3 iterazioni
 	{
 		echo "</br>"."Iterazione ".$cont." </br>";	
 		$url = ("http://rest.kegg.jp/get/path:".substr($p, 5, 8)."/kgml");
@@ -129,8 +129,7 @@ foreach ($pathwaylist as $p)
 		{
 			$mypathway = createPathway(substr($p, 5, 8), $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
 			$pathwayRepo->add($mypathway);
-			$stop = FALSE;
-	        foreach ($xml_pathway_obj->children() as $xml_item)
+			foreach ($xml_pathway_obj->children() as $xml_item)
 			{
 				if ($xml_item -> getName() == "entry")
 				{
@@ -145,25 +144,16 @@ foreach ($pathwaylist as $p)
 							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child);
 			            	$entryRepo->add($entry); // entryRepo aggiornato correttamente
 			            	// Array associativo [id_locale|id_nuovo_vero]
-							$coppie_id_xml_id_db[$entry_id] = $entry; // viene correttamente creato l'array associativo
+			            	$coppie_id_xml_id_db["".$xml_item['id']] = $entry; // viene correttamente creato l'array associativo
 						}
 					}
 				}
 				else if ($xml_item -> getName() == "relation")
 				{
-					$entry1_tmp = $xml_item['entry1'];
-					$entry1 = $coppie_id_xml_id_db[$entry1_tmp[0]];
+					// ora funzionano
+					$entry1 = $coppie_id_xml_id_db["".$xml_item['entry1']];
+					$entry2 = $coppie_id_xml_id_db["".$xml_item['entry2']];
 					
-					if(!($stop))
-					{
-						if(!(is_object($entry1)))
-						{
-							echo "Entry 1 non è un oggetto";
-							$stop = TRUE;
-						}
-					}
-					
-					$entry2 = $allEntries[$coppie_id_xml_id_db[$xml_item['entry2']]];
 					foreach ($xml_item->children() as $subtype_entry)
 					{
 						$relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
@@ -174,9 +164,16 @@ foreach ($pathwaylist as $p)
 						$relationSubTypeRepo->add($compoundRelationSubType);
 					}
 				}
+				
 			} 
 		}
+
+		echo "EntryRepo: ".$entryRepo->count()."</br>";
+		echo "EntryTypeRepo: ".$entryTypeRepo->count()."</br>";
+		echo "RelationRepo: ".$relationRepo->count()."</br>";
+		echo "RelationTypeRepo: ".$relationTypeRepo->count()."</br>";
 	}
+
 	$cont = $cont + 1;
 }
 
@@ -187,9 +184,7 @@ if(is_null($pathwayRepo->getEntries()))
 }
 else 
 {
-	echo "</br>";
-	echo $pathwayRepo->count();
-	echo " repository aggiunti";
+	echo "PathwayRepo: ".$pathwayRepo->count()."</br>";
 }
  
 
