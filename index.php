@@ -31,6 +31,7 @@ $_SESSION['dbname'] = 'MITHrIL';
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta http-equiv="refresh" content="5">
 		<title>MITHrIL - Web GUI</title>
 		<link rel="stylesheet" href="styles/stile.css"/>
 		<link rel="stylesheet" href="styles/stile_buttons.css"/>
@@ -99,12 +100,14 @@ $_SESSION['dbname'] = 'MITHrIL';
 				?>
 		</div>
 		</br></br>
-		<label style="color: white; font-weight: bold" >Apache error log</label>
+		<!--<label style="color: white; font-weight: bold" >Apache error log</label>-->
+		<label style="color: white; font-weight: bold" >Example php</label>
 		</br></br>
 		<div id='apache_error_log'>
 			<?php
-				$log = file_get_contents("/var/log/apache2/error.log");
-				echo $log;
+				//$log = file_get_contents("/var/log/apache2/error.log");
+				//echo $log;
+				//include('example.php');
 			?>
 		</div>
 	</br></br></br>

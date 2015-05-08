@@ -93,6 +93,7 @@ foreach (['human', 'prova1', 'prova2'] as $org) {
         for ($j = 0; $j < 10; $j++) {
             //Scelgo 2 entry a caso
             $entry1 = $allEntries[mt_rand(0, count($allEntries) - 1)];
+			echo $entry1->get('name');
             $entry2 = $allEntries[mt_rand(0, count($allEntries) - 1)];
             //costruisco una relazione di esempio tra le due entry casuali
             $relation = randomRelation($entry1, $entry2, $relationTypeRepo->get("Test"),

@@ -11,12 +11,6 @@ error_reporting(E_ERROR);
 ini_set('display_errors', '1');
 require_once('autoload.php');
 
-/*
- *	ANNOTAZIONI 
- *  
- * 
- */
- 
  /*
  *	MIE FUNZIONI ================================================================================================
  */
@@ -36,7 +30,7 @@ function createRelation($entry1, $entry2, $type, $subType, $pathway)
 function createPathway($id, $org, $title, $image, $link)
 	{
 	    return new \Mithril\Pathway\Pathway([
-	        'id'       => $id,
+	        'id'       => 'path:' . $org . '' . $id,
 	        'organism' => $org,
 	        'title'    => $title,
 	        'image'    => $link
@@ -47,8 +41,6 @@ function createPathway($id, $org, $title, $image, $link)
 
 function createEntry($pathway, $id, $name, $type, $link, $graph_child)
 	{
-		
-		
 		return new \Mithril\Pathway\Entry\Entry([
 		        'id'        => $id,
 		        'aliases'   => $name,
@@ -73,6 +65,18 @@ function createEntry($pathway, $id, $name, $type, $link, $graph_child)
 		        ]
 		    ]);
 	}
+
+function luca_createEntry($pathway, $id, $name, $type, $link, $graph_child)
+	{
+		$entry = new \Mithril\Pathway\Entry\Entry([]);
+		$entry->add('name',$name);
+		$entry->add('id',$id);
+		$entry->add('type',$id);
+		$entry->add('links',$id);
+		return $entry;
+	}
+
+
 
  /*
  * 	INIZIALIZZAZIONE REPOSITORY ======================================================================
@@ -119,56 +123,72 @@ foreach ($pathwaylist as $p)
 		echo "</br>"."Iterazione ".$cont." </br>";	
 		$url = ("http://rest.kegg.jp/get/path:".substr($p, 5, 8)."/kgml");
 		$xmlstring = file_get_contents($url); // il contenuto della pagina inserito in questa variabile
-		$xml_pathway_obj = simplexml_load_string($xmlstring); // oggetto xml di tutta la pathway
+		$xml_pathway_obj = simplexml_load_string($xmlstring);
 		
 		if ($xml_pathway_obj -> getName() == "pathway")
 		{
-			// root: informazioni e tag della pathway
-			echo "Nome pathway: ".$xml_pathway_obj['name']."</br>";
-			
-			$mypathway = createPathway($xml_pathway_obj['name'], $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
-			print_r($mypathway);
-			echo "</br>";
-			
+			$mypathway = createPathway(substr($p, 5, 8), $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
 			$pathwayRepo->add($mypathway);
-			
+			$stop = FALSE;
 	        foreach ($xml_pathway_obj->children() as $xml_item)
 			{
 				if ($xml_item -> getName() == "entry")
 				{
-					foreach ($xml_item->children() as $graph_child) 
+					foreach ($xml_item->children() as $graph_child) // non lo guardareeeeeeeeeeeee
 					{
 						$aliases_list = explode(" ", $xml_item['name']);
 						foreach ($aliases_list as $alias) 
 						{
-							$entry_id = substr($alias, 4);
-							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$xml_item['name'],$xml_item['type'],$xml_item['link'],$graph_child);
+							$entry_id_split = explode(':', $alias);
+							$entry_id = $entry_id_split[1];
+							// pathway_id_new,entry_id_new,collezione_alias,type,link,oggetto Graphic
+							$type = $xml_item['type'][0];
+							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child);
+			            	
+							echo "Name: ";
+			            	echo $entry->get('name')."</br>";
+							echo "Id (nuovo): ";
+							echo $entry->get('id')."</br>";
+							echo "Type: ";
+							// $entry->get('type') è un oggetto di tipo entryType
+							if(is_null($entry->get('type')))
+								echo "hai passato un oggetto type null";
+							echo "</br>";
+							echo "Links: ";
+							$link = $entry->get('links');
+							echo $link[0]."</br>";
+							echo "/////////////////</br>";
 			            	$entryRepo->add($entry);
+							$coppie_id_xml_id_db[$entry_id] = $entry;
 						}
 					}
 				}
 				else if ($xml_item -> getName() == "relation")
 				{
-					/*
+					$allEntries = $mypathway->getEntries();
+					$entry1 = $allEntries[$coppie_id_xml_id_db[$xml_item['entry1']]];
+					if(!($stop))
+					{
+						if(!(is_object($entry1)))
+						{
+							echo "Entry 1 non è un oggetto";
+							$stop = TRUE;
+						}
+					}
+					
+					$entry2 = $allEntries[$coppie_id_xml_id_db[$xml_item['entry2']]];
 					foreach ($xml_item->children() as $subtype_entry)
 					{
-						// leggo i campi di relation dall'xml
-						
-						$entry1 = $allEntries[$xml_item['entry1']];
-			            $entry2 = $allEntries[$xml_item['entry2']];
-						//costruisco la relazione tra le due entry lette
-			            $relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
+						$relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
 			                $relationSubTypeRepo->get($subtype_entry['name']), $path);
-			            $relationRepo->add($relation);
-						//costruisco un sottotipo di relazione di esempio
+						
+						$relationRepo->add($relation);
 						$compoundRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => $subtype_entry['name'], 'value' => $subtype_entry['value']]);
 						$relationSubTypeRepo->add($compoundRelationSubType);
 					}
-					 */
 				}
-				//$allEntries = $path->getEntries();
 			} 
-		} 
+		}
 	}
 	$cont = $cont + 1;
 }
@@ -180,8 +200,9 @@ if(is_null($pathwayRepo->getEntries()))
 }
 else 
 {
-	
-	echo "Repository aggiunti";
+	echo "</br>";
+	echo $pathwayRepo->count();
+	echo " repository aggiunti";
 }
  
 
