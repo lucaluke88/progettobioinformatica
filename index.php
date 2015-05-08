@@ -31,7 +31,7 @@ $_SESSION['dbname'] = 'MITHrIL';
 	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta http-equiv="refresh" content="5">
+		<meta http-equiv="refresh" content="30">
 		<title>MITHrIL - Web GUI</title>
 		<link rel="stylesheet" href="styles/stile.css"/>
 		<link rel="stylesheet" href="styles/stile_buttons.css"/>

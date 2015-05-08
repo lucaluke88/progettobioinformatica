@@ -141,32 +141,19 @@ foreach ($pathwaylist as $p)
 						{
 							$entry_id_split = explode(':', $alias);
 							$entry_id = $entry_id_split[1];
-							// pathway_id_new,entry_id_new,collezione_alias,type,link,oggetto Graphic
 							$type = $xml_item['type'][0];
 							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child);
-			            	
-							echo "Name: ";
-			            	echo $entry->get('name')."</br>";
-							echo "Id (nuovo): ";
-							echo $entry->get('id')."</br>";
-							echo "Type: ";
-							// $entry->get('type') è un oggetto di tipo entryType
-							if(is_null($entry->get('type')))
-								echo "hai passato un oggetto type null";
-							echo "</br>";
-							echo "Links: ";
-							$link = $entry->get('links');
-							echo $link[0]."</br>";
-							echo "/////////////////</br>";
-			            	$entryRepo->add($entry);
-							$coppie_id_xml_id_db[$entry_id] = $entry;
+			            	$entryRepo->add($entry); // entryRepo aggiornato correttamente
+			            	// Array associativo [id_locale|id_nuovo_vero]
+							$coppie_id_xml_id_db[$entry_id] = $entry; // viene correttamente creato l'array associativo
 						}
 					}
 				}
 				else if ($xml_item -> getName() == "relation")
 				{
-					$allEntries = $mypathway->getEntries();
-					$entry1 = $allEntries[$coppie_id_xml_id_db[$xml_item['entry1']]];
+					$entry1_tmp = $xml_item['entry1'];
+					$entry1 = $coppie_id_xml_id_db[$entry1_tmp[0]];
+					
 					if(!($stop))
 					{
 						if(!(is_object($entry1)))
