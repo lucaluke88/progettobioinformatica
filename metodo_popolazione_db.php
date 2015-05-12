@@ -66,18 +66,6 @@ function createEntry($pathway, $id, $name, $type, $link, $graph_child)
 		    ]);
 	}
 
-function luca_createEntry($pathway, $id, $name, $type, $link, $graph_child)
-	{
-		$entry = new \Mithril\Pathway\Entry\Entry([]);
-		$entry->add('name',$name);
-		$entry->add('id',$id);
-		$entry->add('type',$id);
-		$entry->add('links',$id);
-		return $entry;
-	}
-
-
-
  /*
  * 	INIZIALIZZAZIONE REPOSITORY ======================================================================
  */ 
@@ -91,22 +79,26 @@ $pathwayRepo = new \Mithril\Pathway\Repository\Pathway();
 $entryRepo->setRelationsRepository($relationRepo);
 $pathwayRepo->setRelationsRepository($relationRepo)->setEntriesRepository($entryRepo);
 $geneEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'gene']);
+$mirnaEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'mirna']); // mirna
 $orthologEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'ortholog']);
 $enzymeEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'enzyme']);
 $groupEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'group']);
 $mapEntryType = new \Mithril\Pathway\Entry\Type(['name' => 'map']);
+
 
 $entryTypeRepo->add($geneEntryType);
 $entryTypeRepo->add($orthologEntryType);
 $entryTypeRepo->add($enzymeEntryType);
 $entryTypeRepo->add($groupEntryType);
 $entryTypeRepo->add($mapEntryType);
+$entryTypeRepo->add($mirnaEntryType); // mirna
 
 $maplinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'maplink']);
 $ecrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'ECrel']);
 $pprellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'PPrel']);
 $gerellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'GErel']);
 $pcrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'PCrel']);
+$mgrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'MGrel']);
 
 $relationTypeRepo->add($maplinkRelationType);
 $relationTypeRepo->add($ecrellinkRelationType);
@@ -120,7 +112,8 @@ foreach ($pathwaylist as $p)
 {
 	if ($cont<=2) // 3 iterazioni
 	{
-		echo "</br>"."Iterazione ".$cont." </br>";	
+		echo "</br>"."Pathway n".$cont." </br>";
+		
 		$url = ("http://rest.kegg.jp/get/path:".substr($p, 5, 8)."/kgml");
 		$xmlstring = file_get_contents($url); // il contenuto della pagina inserito in questa variabile
 		$xml_pathway_obj = simplexml_load_string($xmlstring);
@@ -129,17 +122,33 @@ foreach ($pathwaylist as $p)
 		{
 			$mypathway = createPathway(substr($p, 5, 8), $xml_pathway_obj['org'], $xml_pathway_obj['title'], $xml_pathway_obj['image'], $xml_pathway_obj['link']);
 			$pathwayRepo->add($mypathway);
+			echo "</br>--".$xml_pathway_obj['title']."---</br>";
 			foreach ($xml_pathway_obj->children() as $xml_item)
 			{
 				if ($xml_item -> getName() == "entry")
 				{
-					foreach ($xml_item->children() as $graph_child) // non lo guardareeeeeeeeeeeee
+					foreach ($xml_item->children() as $graph_child)
 					{
 						$aliases_list = explode(" ", $xml_item['name']);
 						foreach ($aliases_list as $alias) 
 						{
+							// dovrebbe essere automaticamente gestito
+							//cpd:C00033
+							//path:hsa00030
+							//ko:K01568
+							//hsa:10327
 							$entry_id_split = explode(':', $alias);
 							$entry_id = $entry_id_split[1];
+							if($entry_id_split[0]=="hsa")
+							{
+								// è un gene, interrogo i mirna che lo hanno come target
+								http://app1.bioinformatics.mdanderson.org/tarhub/_design/basic/_view/by_geneIDcount?key=[$entry_id,3]
+							
+							}
+							
+							
+							
+							
 							$type = $xml_item['type'][0];
 							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child);
 			            	$entryRepo->add($entry); // entryRepo aggiornato correttamente
@@ -158,7 +167,6 @@ foreach ($pathwaylist as $p)
 					{
 						$relation = createRelation($entry1, $entry2, $relationTypeRepo->get($xml_item['type']),
 			                $relationSubTypeRepo->get($subtype_entry['name']), $path);
-						
 						$relationRepo->add($relation);
 						$compoundRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => $subtype_entry['name'], 'value' => $subtype_entry['value']]);
 						$relationSubTypeRepo->add($compoundRelationSubType);
@@ -177,28 +185,17 @@ foreach ($pathwaylist as $p)
 	$cont = $cont + 1;
 }
 
-if(is_null($pathwayRepo->getEntries()))
-{
-	echo "</br>";
-	echo "Non ci sono pathway";
-}
-else 
-{
-	echo "PathwayRepo: ".$pathwayRepo->count()."</br>";
-}
+echo "PathwayRepo: ".$pathwayRepo->count()."</br>";
+
  
+//	dopo di questo, dobbiamo aggiungere altri tipi e altre entità
+//	aggiungere interazioni microRNA-geni (sempre umane)
+//	microrna gene targets (ci interessano solo queste validate)
+//	abbiamo a disposizione l'id di entrez, che abbiamo anche in kegg nel formato hsa:id_entrez
+//	MIMAT collegati al gene (interazioni di tipo gene)
 
+//	relation subtype: ~inibition
+//	sito mirwalk tabella
+//	sito mirtarbase excel
+//	mappare il nome del maturo con l'entry del db mirbase
 
-
-// dopo di questo, dobbiamo aggiungere altri tipi e altre entità
-//aggiungere interazioni microRNA-geni (sempre umane)
-// microrna gene targets (ci interessano solo queste validate)
-// abbiamo a disposizione l'id di entrez, che abbiamo anche in kegg nel formato hsa:id_entrez
-// MIMAT collegati al gene (interazioni di tipo gene)
-// relation type: mgrel
-// relation subtype: ~inibition
-// sito mirwalk tabella
-// sito mirtarbase excel
-// mappare il nome del maturo con l'entry del db mirbase
-
-// aggiungere entry "microrna"
