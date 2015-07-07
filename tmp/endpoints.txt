@@ -1,15 +1,30 @@
-path:human1	4,11
-path:human2	12,17,21
-path:human3	24,22
-path:human4	34,33
-path:human5	51,46
-path:prova11	59,61,56,60
-path:prova12	67
-path:prova13	78,74,75,80
-path:prova14	89,86,84
-path:prova15	92,99
-path:prova21	104,106,110
-path:prova22	112,115
-path:prova23	123,126,128
-path:prova24	137,132,138
-path:prova25	141,142,144
+path:hsahsa00010	
+path:hsahsa00020	
+path:hsahsa00030	
+path:hsahsa00040	
+path:hsahsa00051	
+path:hsahsa00052	
+path:hsahsa00053	
+path:hsahsa00061	
+path:hsahsa00062	
+path:hsahsa00071	
+path:hsahsa00072	
+path:hsahsa00100	
+path:hsahsa00120	
+path:hsahsa00130	
+path:hsahsa00140	
+path:hsahsa00190	
+path:hsahsa00230	
+path:hsahsa00232	
+path:hsahsa00240	
+path:hsahsa00250	
+path:hsahsa00260	
+path:hsahsa00270	
+path:hsahsa00280	
+path:hsahsa00290	
+path:hsahsa00300	
+path:hsahsa00310	
+path:hsahsa00330	
+path:hsahsa00340	
+path:hsahsa00350	
+path:hsahsa00360	

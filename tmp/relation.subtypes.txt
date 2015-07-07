@@ -1,1 +1,1 @@
-TestSubType;XXX
+mirna_relation;0

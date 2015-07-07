@@ -7,7 +7,7 @@ div#command_output
 	border: 1px solid black;
 	width: 80%;
 	margin-left: 10%;
-	height: 40%;
+	height: 80%;
 	overflow: auto;
 }
 
@@ -27,6 +27,7 @@ div#apache_error_log
 div#container
 {
 	text-align:center;
+	height: 80%;
 }
 
 div#footer
