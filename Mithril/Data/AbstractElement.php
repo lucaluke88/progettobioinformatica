@@ -395,4 +395,17 @@ abstract class AbstractElement implements \ArrayAccess, \JsonSerializable
         }
     }
 
+    /**
+     * Convert object to array
+     *
+     * @return array
+     */
+    public function toArray() {
+        $data = [];
+        foreach ($this->config as $field => $c) {
+            $data[$field] = $this->get($field);
+        }
+        return $data;
+    }
+
 }

@@ -141,13 +141,8 @@ foreach ($pathwaylist as $p)
 							$entry_id = $entry_id_split[1];
 							if($entry_id_split[0]=="hsa")
 							{
-								// è un gene, interrogo i mirna che lo hanno come target
-								http://app1.bioinformatics.mdanderson.org/tarhub/_design/basic/_view/by_geneIDcount?key=[$entry_id,3]
-							
+								echo "hsa";
 							}
-							
-							
-							
 							
 							$type = $xml_item['type'][0];
 							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child);
@@ -198,4 +193,5 @@ echo "PathwayRepo: ".$pathwayRepo->count()."</br>";
 //	sito mirwalk tabella
 //	sito mirtarbase excel
 //	mappare il nome del maturo con l'entry del db mirbase
+
 

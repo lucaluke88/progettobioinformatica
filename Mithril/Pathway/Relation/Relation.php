@@ -16,10 +16,15 @@ use \Mithril\Data\AbstractElement;
  * @property \Mithril\Pathway\Entry\Entry        $entry2
  * @property \Mithril\Pathway\Relation\Type      $type
  * @property \Mithril\Pathway\Relation\SubType[] $subTypes
+ * @property \Mithril\Pathway\Relation\SubType[] $pathways
  * @method \Mithril\Pathway\Relation\SubType[] getSubTypes()
  * @method \Mithril\Pathway\Relation\Relation addSubTypes($subTypes)
  * @method \Mithril\Pathway\Relation\Relation setSubTypes($subTypes)
- * @method \Mithril\Pathway\Relation\Relation clearSubTypes($subTypes)
+ * @method \Mithril\Pathway\Relation\Relation clearSubTypes()
+ * @method \Mithril\Pathway\Relation\SubType[] getPathways()
+ * @method \Mithril\Pathway\Relation\Relation addPathways($subTypes)
+ * @method \Mithril\Pathway\Relation\Relation setPathways($subTypes)
+ * @method \Mithril\Pathway\Relation\Relation clearPathways()
  * @package Mithril\Pathway
  */
 class Relation extends AbstractElement

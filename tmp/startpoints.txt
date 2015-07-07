@@ -1,0 +1,15 @@
+path:human1	1,7
+path:human2	11,16,19
+path:human3	26,25,29
+path:human4	36,39,41
+path:human5	43,50
+path:prova11	52,57
+path:prova12	66
+path:prova13	71,81,79
+path:prova14	90,91
+path:prova15	98,93
+path:prova21	101,111
+path:prova22	111,113,117
+path:prova23	122,130
+path:prova24	135,139,140
+path:prova25	143,147

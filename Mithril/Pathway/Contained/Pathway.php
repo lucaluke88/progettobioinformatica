@@ -14,7 +14,7 @@ use \Mithril\Data\AbstractElement;
 /**
  * Class Pathway
  * @property \Mithril\Pathway\Pathway $pathway
- * @property \Mithril\Pathway\Graphic $graphics
+ * @property \Mithril\Pathway\Graphic $graphic
  * @package Mithril\Pathway\Contained
  */
 class Pathway extends AbstractElement

@@ -9,6 +9,8 @@
 namespace Mithril\Pathway\Entry;
 
 use \Mithril\Data\AbstractElement;
+use Mithril\Pathway\Pathway;
+use Mithril\Pathway\Relation\Relation;
 
 /**
  * Class Entry
@@ -113,19 +115,45 @@ class Entry extends AbstractElement
     }
 
     /**
+     * @param \Mithril\Pathway\Pathway $pathway
+     *
      * @return \Mithril\Pathway\Relation\Relation[]
      */
-    public function outgoingRelations()
+    public function outgoingRelations(Pathway $pathway = null)
     {
-        return $this->relationsRepository->byEntry1($this);
+        $list = $this->relationsRepository->byEntry1($this);
+        if (!is_array($list) && !is_null($list) && ($list instanceof Relation)) {
+            $list = [$list];
+        } elseif (!is_array($list)) {
+            $list = [];
+        }
+        if ($pathway !== null) {
+            $list = array_filter($list, function (Relation $r) use ($pathway) {
+                return (in_array($pathway, $r->pathways));
+            });
+        }
+        return $list;
     }
 
     /**
+     * @param \Mithril\Pathway\Pathway $pathway
+     *
      * @return \Mithril\Pathway\Relation\Relation[]
      */
-    public function ingoingRelations()
+    public function ingoingRelations(Pathway $pathway = null)
     {
-        return $this->relationsRepository->byEntry2($this);
+        $list = $this->relationsRepository->byEntry2($this);
+        if (!is_array($list) && !is_null($list) && ($list instanceof Relation)) {
+            $list = [$list];
+        } elseif (!is_array($list)) {
+            $list = [];
+        }
+        if ($pathway !== null) {
+            $list = array_filter($list, function (Relation $r) use ($pathway) {
+                return (in_array($pathway, $r->pathways));
+            });
+        }
+        return $list;
     }
 
 }

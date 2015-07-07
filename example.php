@@ -54,12 +54,12 @@ function makeRandomPathway($id, $org)
 }
 
 //Costruisco le repository
-$entryTypeRepo = new \Mithril\Pathway\Repository\Entry\Type();              //Repository dei tipi di entry
-$entryRepo = new \Mithril\Pathway\Repository\Entry\Entry();                 //Repository delle entry
-$relationTypeRepo = new \Mithril\Pathway\Repository\Relation\Type();        //Repository dei tipi di relazione
-$relationSubTypeRepo = new \Mithril\Pathway\Repository\Relation\SubType();  //Repository dei sottotipi di relazione
-$relationRepo = new \Mithril\Pathway\Repository\Relation\Relation();        //Repository delle relazioni
-$pathwayRepo = new \Mithril\Pathway\Repository\Pathway();                   //Repository delle pathway
+$entryTypeRepo = new \Mithril\Pathway\Repository\Entry\Type();
+$entryRepo = new \Mithril\Pathway\Repository\Entry\Entry();
+$relationTypeRepo = new \Mithril\Pathway\Repository\Relation\Type();
+$relationSubTypeRepo = new \Mithril\Pathway\Repository\Relation\SubType();
+$relationRepo = new \Mithril\Pathway\Repository\Relation\Relation();
+$pathwayRepo = new \Mithril\Pathway\Repository\Pathway();
 //Imposto le repository delle entry e delle pathway collegandole alle altre
 $entryRepo->setRelationsRepository($relationRepo);
 $pathwayRepo->setRelationsRepository($relationRepo)->setEntriesRepository($entryRepo);
@@ -93,7 +93,6 @@ foreach (['human', 'prova1', 'prova2'] as $org) {
         for ($j = 0; $j < 10; $j++) {
             //Scelgo 2 entry a caso
             $entry1 = $allEntries[mt_rand(0, count($allEntries) - 1)];
-			echo $entry1->get('name');
             $entry2 = $allEntries[mt_rand(0, count($allEntries) - 1)];
             //costruisco una relazione di esempio tra le due entry casuali
             $relation = randomRelation($entry1, $entry2, $relationTypeRepo->get("Test"),
@@ -105,4 +104,30 @@ foreach (['human', 'prova1', 'prova2'] as $org) {
     }
 }
 
-echo $pathwayRepo->count();
+$entriesTypeWriter = new \Mithril\Data\RepositoryWriter($entryTypeRepo, '\Mithril\Pathway\Writer\Entry\Type');
+$entriesTypeWriter->writeAndSave("tmp/entries.types.txt");
+$relationTypeWriter = new \Mithril\Data\RepositoryWriter($relationTypeRepo, '\Mithril\Pathway\Writer\Relation\Type');
+$relationTypeWriter->writeAndSave("tmp/relation.types.txt");
+$relationSubTypeWriter = new \Mithril\Data\RepositoryWriter($relationSubTypeRepo, '\Mithril\Pathway\Writer\Relation\SubType');
+$relationSubTypeWriter->writeAndSave("tmp/relation.subtypes.txt");
+
+$pathwaysWriter = new \Mithril\Data\RepositoryWriter($pathwayRepo, '\Mithril\Pathway\Writer\Pathway');
+$pathwaysWriter->writeAndSave("tmp/pathways.txt");
+$entriesWriter = new \Mithril\Data\RepositoryWriter($entryRepo, '\Mithril\Pathway\Writer\Entry\Entry');
+$entriesWriter->writeAndSave("tmp/entries.txt");
+$relationsWriter = new \Mithril\Data\RepositoryWriter($relationRepo, '\Mithril\Pathway\Writer\Relation\Relation');
+$relationsWriter->writeAndSave("tmp/relations.txt");
+
+$endpointsContainer = new \Mithril\Pathway\Endpoints($pathwayRepo);
+$endpointsWriter = new \Mithril\Pathway\Writer\Endpoints($endpointsContainer);
+$endpointsWriter->writeAndSave("tmp/endpoints.txt");
+
+$startingPointsContainer = new \Mithril\Pathway\StartingPoints($pathwayRepo);
+$startingPointsWriter = new \Mithril\Pathway\Writer\StartingPoints($startingPointsContainer);
+$startingPointsWriter->writeAndSave("tmp/startpoints.txt");
+
+echo "OK";
+
+
+
+
