@@ -14,7 +14,7 @@ use Mithril\Pathway\Relation\Relation;
 
 /**
  * Class Entry
- * @property int                                  $id
+ * @property string                                  $id
  * @property array                                $aliases
  * @property string                               $name
  * @property \Mithril\Pathway\Entry\Type          $type
@@ -45,7 +45,7 @@ class Entry extends AbstractElement
             'class'      => null,
             'default'    => null,
             'serializer' => null,
-            'parser'     => 'intval',
+            'parser'     => null,
             'output'     => null,
         ],
         'aliases'   => [
