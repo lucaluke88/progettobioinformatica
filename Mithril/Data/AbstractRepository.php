@@ -90,15 +90,16 @@ abstract class AbstractRepository implements \JsonSerializable, \IteratorAggrega
      */
     protected function realIndex($indexName, $value, AbstractElement $data)
     {
-        if ($value instanceof AbstractElement) {
+    	if ($value instanceof AbstractElement) {
             if ($value->getIdField() !== null) {
                 $value = $value->get($value->getIdField());
-            } else {
+			} else {
                 throw new \RuntimeException("Unsupported object in index");
             }
         }
-        if (array_key_exists($value, $this->indexedData[$indexName])) {
-            if (is_array($this->indexedData[$indexName][$value]) &&
+		if (array_key_exists($value, $this->indexedData[$indexName])) 
+        {
+        	if (is_array($this->indexedData[$indexName][$value]) &&
                 !$this->inArray($data, $this->indexedData[$indexName][$value])
             ) {
                 $this->indexedData[$indexName][$value][] = $data;
@@ -107,7 +108,9 @@ abstract class AbstractRepository implements \JsonSerializable, \IteratorAggrega
             ) {
                 $this->indexedData[$indexName][$value] = [$this->indexedData[$indexName][$value], $data];
             }
-        } else {
+        } 
+        else 
+        {
             $this->indexedData[$indexName][$value] = $data;
         }
     }
@@ -125,10 +128,10 @@ abstract class AbstractRepository implements \JsonSerializable, \IteratorAggrega
             $values = $this->indexKey($data, $indexName);
             if (is_array($values)) {
                 foreach ($values as $v) {
-                    $this->realIndex($indexName, $v, $data);
+                	$this->realIndex($indexName, $v, $data);
                 }
             } else {
-                $this->realIndex($indexName, $values, $data);
+            	$this->realIndex($indexName, $values, $data);
             }
         }
         return $this;
@@ -150,7 +153,7 @@ abstract class AbstractRepository implements \JsonSerializable, \IteratorAggrega
                 throw new \RuntimeException("Unsupported object in index");
             }
         }
-        if (array_key_exists($value, $this->indexedData[$indexName])) {
+		if (array_key_exists($value, $this->indexedData[$indexName])) {
             if (is_array($this->indexedData[$indexName][$value])) {
                 $idx = $this->arraySearch($data, $this->indexedData[$indexName][$value]);
                 if ($idx !== false) {
@@ -225,7 +228,7 @@ abstract class AbstractRepository implements \JsonSerializable, \IteratorAggrega
                 } else {
                     $this->data[] = $data;
                 }
-                $this->index($data);
+				$this->index($data);
             }
         }
         return $this;
@@ -264,7 +267,7 @@ abstract class AbstractRepository implements \JsonSerializable, \IteratorAggrega
     public function has($what, $index = null)
     {
         if ($index === null) {
-            return array_key_exists($what, $this->data);
+           return array_key_exists($what, $this->data);
         } else {
             return isset($this->indexes[$index]) && array_key_exists($what, $this->indexedData[$index]);
         }

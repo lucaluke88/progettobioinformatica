@@ -1,1 +1,2 @@
-mirna_relation;0
+inhibition;0
+compound;142

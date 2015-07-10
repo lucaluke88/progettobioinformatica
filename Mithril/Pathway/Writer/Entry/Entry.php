@@ -46,6 +46,7 @@ class Entry extends ElementWriter
     public function write()
     {
         $data = $this->element->toArray();
+		print_r($this->element->type);
         $data['type'] = $this->element->type->name;
         $data['aliases'] = $this->writeArray($this->element->aliases);
         $data['links'] = $this->writeArray($this->element->links);
