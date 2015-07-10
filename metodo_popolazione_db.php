@@ -7,7 +7,7 @@
  * @author Illuminato Luca Costantino - Daniela Ramo
  */
 
-error_reporting(E_ALL);
+error_reporting(E_NOTICE);
 ini_set('display_errors', '1');
 ini_set('max_execution_time', 300);
 require_once('autoload.php');
@@ -88,8 +88,6 @@ function createEntry($pathway, $id, $name, $type, $link, $graph_child)
 			}
 	}
 
-	
-
 
  /*
  * 	INIZIALIZZAZIONE REPOSITORY ======================================================================
@@ -124,7 +122,7 @@ $pprellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'PPrel'])
 $gerellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'GErel']);
 $pcrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'PCrel']);
 $mgrellinkRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'MGrel']);
-$mirnaRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'MIRNA']);
+$mirnaRelationType = new \Mithril\Pathway\Relation\Type(['name' => 'mirna']);
 
 $relationTypeRepo->add($maplinkRelationType);
 $relationTypeRepo->add($ecrellinkRelationType);
@@ -133,19 +131,18 @@ $relationTypeRepo->add($gerellinkRelationType);
 $relationTypeRepo->add($pcrellinkRelationType);
 
 // nuova subtype relation mirna->gene target
-$mirnaRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => 'mirna_relation', 'value' => 0]); // la chiamiamo così perchè non è detto che siano tutte di inibizione
+$mirnaRelationSubType = new \Mithril\Pathway\Relation\SubType(['name' => 'inhibition', 'value' => 0]); // la chiamiamo così perchè non è detto che siano tutte di inibizione
 $relationSubTypeRepo->add($mirnaRelationSubType);
 
 echo "Lettura pathway da KEGG...</br>";
 $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway/hsa'));
 $cont = 1;
 
-$global_graph_child;
-
+$nIterazioni = 30; // quante pathway vogliamo leggere
 foreach ($pathwaylist as $p) 
 {
-	if ($cont<=3) // 2 iterazioni
-	{
+	if ($cont<=$nIterazioni) // levando il commento qui
+	{											// e qui possiamo limitare le letture (ai fini di test)
 		echo "</br>"."Pathway n".$cont." </br>";
 		
 		$url = ("http://rest.kegg.jp/get/path:".substr($p, 5, 8)."/kgml");
@@ -165,26 +162,27 @@ foreach ($pathwaylist as $p)
 						$aliases_list = explode(" ", $xml_item['name']);
 						foreach ($aliases_list as $alias) 
 						{
-							// Stiamo gestendo solo i geni in questa fase
-							//cpd:C00033
-							//path:hsa00030
-							//ko:K01568
-							//hsa:10327
-							
 							$entry_id_split = explode(':', $alias);
-							$category = $entry_id_split[0];
-							if($category=="hsa")
+							$entry_id = $entry_id_split[1];
+							$type = $xml_item['type'][0];
+							$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child); //entry di tipo gene
+				            $entryRepo->add($entry); // entryRepo aggiornato correttamente
+				            $coppie_id_xml_id_db["".$xml_item['id']] = $entry; // viene correttamente creato l'array associativo
+				            $entrezid_to_mithrilid[$entry_id] = $entry; // cerca i target col mirna
+				            
+				            echo "Entry ID: ".$entry->id."</br>";
+				            if (is_null($pathwayfinderbygene[$entry] )) 
+				            {
+				            	echo "creazione </br>";
+								$pathwayfinderbygene[$entry] = array($mypathway);
+							} 
+							else 
 							{
-								$entry_id = $entry_id_split[1];
-								$type = $xml_item['type'][0];
-								$entry = createEntry($xml_pathway_obj['name'],$entry_id,$alias,$entryTypeRepo->get($type),$xml_item['link'][0],$graph_child);
-				            	$entryRepo->add($entry); // entryRepo aggiornato correttamente
-				            	// Array associativo [id_locale|id_nuovo_vero]
-				            	$coppie_id_xml_id_db["".$xml_item['id']] = $entry; // viene correttamente creato l'array associativo
-				            	// SICCOME NON TROVO UNA RICERCA DEL TIPO 'ENTREZ_ID'-->OGGETTO GENE, mi faccio un array associativo per usarlo con i mirna
-				            	$entrezid_to_mithrilid[$entry_id] = $entry;
-								$pathwayfinderbygene[$entry_id] = array_push($pathwayfinderbygene[$entry_id],$mypathway); // aggiungo la pathway alle altre già presenti per quel gene
+								echo "inserimento... </br>";
+								$pathwayfinderbygene[$entry] = array_push($pathwayfinderbygene[$entry],$mypathway); // cerca pathway col target
 							}
+							
+				            echo "Numero pathway per entry ".count($pathwayfinderbygene[$entry])."</br>";
 						}
 					}
 				}
@@ -228,7 +226,7 @@ require_once 'excel_reader2.php';
 
 $data = new Spreadsheet_Excel_Reader("mirtarbase/hsa_MTI.xls",false);
 
-$nIterazioni = 4;
+$nIterazioni = 100;
 // $nIterazioni = $data->rowcount($sheet_index=0);
 
 // pathway e graph_child dummy per i MIRNA
@@ -250,16 +248,17 @@ for ($i=2; $i < $nIterazioni+2 ; $i++) // gli elementi partono dalla seconda rig
 	   echo "Iterazione ".$i."</br>";
 	   // colonna 2 : nome mirna | ... | colonna 5: id gene (entrez)
 	   //function createEntry($pathway, $id, $name, $type, $link, $graph_child)
-	   echo "ID: ".$data->val($i,1)."</br>";
-	   echo "Name: ".$data->val($i,2)."</br>";
+	   $mirna_id = $data->val($i,2);
 	   
 		$target_entry = $entrezid_to_mithrilid[$data->val($i,5)];
 		// assumendo che sia corretto, possiamo procedere nel creare le relazioni
 		if(!is_null($target_entry))
-		{ // creiamo la relazione
-			$pathways_for_this_target = $pathwayfinderbygene[$target_entry];
-			echo "Il target del miRNA è presente in ".count($pathways_for_this_target)." pathway</br>";
-			$mirna_entry= createEntry($pathways_for_this_target,$data->val($i,2),$data->val($i,2),"mirna","NULL",$dummyGraphChild);
+		{ 
+			// creiamo la relazione
+			$pathways_for_this_target = $pathwayfinderbygene[$target_entry];  //tutte le pathway per questa entry
+			echo "Il gene target del miRNA è presente in ".count($pathways_for_this_target)." pathway</br>";
+			echo "inserimento mirna</br>";
+			$mirna_entry= createEntry($pathways_for_this_target,$mirna_id,$mirna_id,"mirna","NULL",$dummyGraphChild);
 			$entryRepo->add($mirna_entry);
 			$relation = createRelation($mirna_entry, $target_entry, $mirnaRelationType,$mirnaRelationSubType, NULL);
 			$relationRepo->add($relation);
@@ -267,6 +266,7 @@ for ($i=2; $i < $nIterazioni+2 ; $i++) // gli elementi partono dalla seconda rig
 		else 
 		{
 			// Mirna il cui target non è censito dal sistema, inserimento con dati dummy
+			echo "inserimento mirna con dati dummy (target non presente)</br>";
 			$mirna_entry= createEntry($dummyPathway,$data->val($i,2),$data->val($i,2),"mirna","NULL",$dummyGraphChild);
 			$entryRepo->add($mirna_entry);
 		}
@@ -280,7 +280,7 @@ echo "Numero tipi relazione: ".$relationTypeRepo->count()."</br>";
 echo "Numero pathway lette: ".$pathwayRepo->count()."</br></br>";
 echo "----------------------</br>";
 
-/*
+
 // SCRITTURA SU FILE DEI RISULTATI
 
 echo "Scrittura su file dei risultati... </br>";
@@ -307,4 +307,3 @@ $startingPointsContainer = new \Mithril\Pathway\StartingPoints($pathwayRepo);
 $startingPointsWriter = new \Mithril\Pathway\Writer\StartingPoints($startingPointsContainer);
 $startingPointsWriter->writeAndSave("tmp/startpoints.txt");
 echo "Scrittura su file effettuata!</br>";
-*/
