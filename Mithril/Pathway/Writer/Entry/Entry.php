@@ -45,12 +45,21 @@ class Entry extends ElementWriter
      */
     public function write()
     {
-        $data = $this->element->toArray();
-		print_r($this->element->type);
-        $data['type'] = $this->element->type->name;
+    	$data = $this->element->toArray();
+		if(isset($this->element->type->name))
+		{
+			$data['type'] = $this->element->type->name;
+		}
+		else
+		{
+			echo "is not set</br>";
+			$data['type'] = 'typeWriteElement';
+		}
+		
+         // è un array void, problema qui in questo file
         $data['aliases'] = $this->writeArray($this->element->aliases);
-        $data['links'] = $this->writeArray($this->element->links);
-        $data['contained'] = $this->writeContained($this->element->contained);
+		$data['links'] = $this->writeArray($this->element->links);
+		$data['contained'] = $this->writeContained($this->element->contained); // problema qui riferito nel pathway.php
         return $this->writeArray($data, null, "\t");
     }
 }

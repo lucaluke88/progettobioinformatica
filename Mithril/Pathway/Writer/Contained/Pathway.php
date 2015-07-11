@@ -24,7 +24,8 @@ class Pathway extends ElementWriter
      */
     public function write()
     {
-        $graphic = $this->element->graphic->toArray();
+    	
+    	$graphic = $this->element->graphic->toArray();
         $graphic['pathway'] = $this->element->pathway->id;
         return json_encode($graphic);
     }

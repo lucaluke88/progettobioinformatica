@@ -4,3 +4,4 @@ enzyme
 group
 map
 mirna
+compound

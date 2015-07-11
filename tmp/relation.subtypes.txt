@@ -1,2 +1,2 @@
 inhibition;0
-compound;142
+compound;92

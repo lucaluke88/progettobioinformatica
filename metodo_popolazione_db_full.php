@@ -125,13 +125,8 @@ $relationSubTypeRepo->add($mirnaRelationSubType);
 echo "Lettura pathway hsa da KEGG...</br>";
 $pathwaylist = explode("\n", file_get_contents('http://rest.kegg.jp/list/pathway/hsa'));
 
-$cont = 1; // ai fini di test, non leggiamo TUTTE le pathway hsa
-$nIterazioni = 2; // quante pathway vogliamo leggere
-
 foreach ($pathwaylist as $p) 
 {
-	if ($cont<=$nIterazioni) // levando il commento qui
-	{											// e qui possiamo limitare le letture (ai fini di test)
 		echo "Lettura pathway ".$cont." </br>";
 		$url = ("http://rest.kegg.jp/get/path:".substr($p, 5, 8)."/kgml");
 		$xmlstring = file_get_contents($url); // il contenuto della pagina inserito in questa variabile
@@ -186,10 +181,8 @@ foreach ($pathwaylist as $p)
 				
 			} 
 		}
-	}
-
-	$cont = $cont + 1;
 }
+
 
 echo "Inseriti elementi dalla lettura delle pathway</br>";
 echo "Numero Entry: ".$entryRepo->count()."</br>";
@@ -203,11 +196,10 @@ echo "Lettura dati MiRna da Mirtarbase...</br>";
 
 require_once 'excel_reader2.php';
 
-//file_put_contents("mirtarbase/hsa_MTI.xls", fopen("http://mirtarbase.mbc.nctu.edu.tw/cache/download/4.5/hsa_MTI.xls", 'r')); // levare il commento per far scaricare ogni volta il file xls
+file_put_contents("mirtarbase/hsa_MTI.xls", fopen("http://mirtarbase.mbc.nctu.edu.tw/cache/download/4.5/hsa_MTI.xls", 'r'));
 $data = new Spreadsheet_Excel_Reader("mirtarbase/hsa_MTI.xls",false);
 
-$nIterazioni = 3; 
-// $nIterazioni = $data->rowcount($sheet_index=0); // leggiamo tutto il file, commentare se vogliamo limitare le letture
+$nIterazioni = $data->rowcount($sheet_index=0); // leggiamo tutto il file, commentare se vogliamo limitare le letture
 
 // pathway e graph_child dummy per i MIRNA
 $dummyPathway = createPathway("mirna_path", "hsa", "mirna", "image", "link");
@@ -224,7 +216,7 @@ $dummyGraphChild = new \Mithril\Pathway\Graphic([
 					                ]);
 
 $nMirnaEntry = 1;
-for ($i=2; $i < $nIterazioni+2 ; $i++) // gli elementi partono dalla seconda riga
+for ($i=2; $i < $nIterazioni+1 ; $i++) // gli elementi partono dalla seconda riga
 {
 	   echo "Iterazione ".$i."</br>";
 	   $mirna_id = $data->val($i,2); // id e nome mirna vengono letti dalla seconda colonna del file xls
